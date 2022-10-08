@@ -1,0 +1,40 @@
+<html><head><title>Ejercicio 27</title>
+<script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="js/webgl-utils.js"></script>
+<script id="shader-fs" type="x-shader/x-fragment">
+	precision mediump float;
+	varying vec2 vTextCoord;
+	uniform sampler2D uMuestra;
+	void main(void) {
+		gl_FragColor = texture2D(uMuestra, vec2(vTextCoord.s, vTextCoord.t));
+	}
+</script>
+<script id="shader-vs" type="x-shader/x-vertex">
+	attribute vec3 aVertPos;
+	attribute vec2 aTextCoord;
+	uniform mat4 uMVMatriz;
+	uniform mat4 uPMatriz;
+	varying vec2 vTextCoord;
+	void main(void) {
+		gl_Position = uPMatriz * uMVMatriz * vec4(aVertPos, 1.0);
+		vTextCoord = aTextCoord;
+	}
+</script>
+<script type="text/javascript" src="js/webgl-27.js"></script>
+<!-- Usamos un poco de CSS para posicionar el div, en el HEAD del HTML:  -->
+<style type="text/css">
+	#cargarText {
+		position:absolute;
+		top:250px;
+		left:150px;
+		font-size:2em;
+		color: white;
+	}
+</style>
+</head>
+<!-- Asi que tenemos un DIV que contiene un texto que se mostrará mientras cargamos (mediante AJAX) el fichero de texto que contiene los datos del mapa, para que el usuario no se desespere si la velocidad de transferencia entre su PC y el servidor web es lenta. Puedes haber notado en la demo que ésta capa aparece arriba del todo, y no debajo del canvas, como era de esperar. -->
+<body onload="ejecutarWebGL();">
+	<canvas id="leccion07-mundo3D" style="border: none;" width="500" height="500"></canvas>
+	<div id="cargarText">Cargando mundo...</div>
+	<br>Usar el cursos o WASD para correr alrededor, y <code>Page Up</code> / <code>Page Down</code> para mirar arriba y abajo.
+</body></html>

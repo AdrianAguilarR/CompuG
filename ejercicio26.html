@@ -1,0 +1,38 @@
+<html>
+<head>
+<title>Ejercicio 26</title>
+<script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="js/webgl-utils.js"></script>
+<script id="shader-fs" type="x-shader/x-fragment">
+	/* Lo que hacemos es recoger el color mediante una variable uniforme, que  nos fue
+	suministrada en el método del prototipo Star que dibuja la estrella, y su uso para
+	teñir la textura, que como podemos ver, es una imagen en blanco y negro. Con ésto
+	conseguimos que las estrellas tengan un color más apropiado a nuestros intereses. */
+	precision mediump float;
+	varying vec2 vTexturaCoord;
+	uniform sampler2D uMuestra;
+	uniform vec3 uColor;
+	void main(void) {
+		vec4 texturaColor = texture2D(uMuestra, vec2(vTexturaCoord.s, vTexturaCoord.t));
+		gl_FragColor = texturaColor * vec4(uColor, 1.0);
+	}
+</script>
+<script id="shader-vs" type="x-shader/x-vertex">
+	// Todos los detalles sobre la iluminación se han eliminado en el vertex shader
+	attribute vec3 aVertPosicion;
+	attribute vec2 aTexturaCoord;
+	uniform mat4 uMVMatriz;
+	uniform mat4 uPMatriz;
+	varying vec2 vTexturaCoord;
+	void main(void) {
+		gl_Position = uPMatriz * uMVMatriz * vec4(aVertPosicion, 1.0);
+		vTexturaCoord = aTexturaCoord;
+	}
+</script>
+<script type="text/javascript" src="js/webgl-26.js"></script>
+</head>
+<body onload="iniciarWebGL();">
+	<canvas id="leccion06-brillo" style="border: none;" width="500" height="500"></canvas>
+	<br><input type="checkbox" id="centella">Centella</input><br>
+	(Use Arriba/Abajo del cursor para rotar, y <code>Page Up</code>/<code>Page Down</code> para zoom)
+</body></html>

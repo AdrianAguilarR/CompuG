@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>Ejercicio 28</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="js/webgl-utils.js"></script>
+<script id="shader-fs" type="x-shader/x-fragment">
+    #ifdef GL_ES
+    precision highp float;
+    #endif
+
+    varying vec2 vTexturaCoord;
+    varying vec3 vAnchoLuz;
+
+    uniform sampler2D uMuestra;
+
+    void main(void) {
+        vec4 texturaColor = texture2D(uMuestra, vec2(vTexturaCoord.s, vTexturaCoord.t));
+        gl_FragColor = vec4(texturaColor.rgb * vAnchoLuz, texturaColor.a);
+    }
+</script>
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVerticePosicion;
+    attribute vec3 aVerticeNormal;
+    attribute vec2 aTexturaCoord;
+
+    uniform mat4 uMVMatriz;
+    uniform mat4 uPMatriz;
+    uniform mat3 uNMatriz;
+
+    uniform vec3 uAmbienteColor;
+
+    uniform vec3 uLuzDireccion;
+    uniform vec3 uDirectionalColor;
+
+    uniform bool uUsarLuz;
+
+    varying vec2 vTexturaCoord;
+    varying vec3 vAnchoLuz;
+
+    void main(void) {
+        gl_Position = uPMatriz * uMVMatriz * vec4(aVerticePosicion, 1.0);
+        vTexturaCoord = aTexturaCoord;
+
+        if (!uUsarLuz) {
+            vAnchoLuz = vec3(1.0, 1.0, 1.0);
+        } else {
+            vec3 transformadaNormal = uNMatriz * aVerticeNormal;
+            float direccionAnchoLuz = max(dot(transformadaNormal, uLuzDireccion), 0.0);
+            vAnchoLuz = uAmbienteColor + uDirectionalColor * direccionAnchoLuz;
+        }
+    }
+</script>
+<script type="text/javascript" src="js/webgl-28.js"></script>
+</head>
+<body onload="ejecutarWebGL();">
+    <canvas id="leccion08-esfera" style="border: none;" width="500" height="500"></canvas>
+    <br>
+    <input type="checkbox" id="iluminacion" checked /> Usar iluminación<br/>
+    Gira la luna arrastrando el ratón sobre ella.
+    <br/>
+    <b>Iluminación direccional:</b>
+    <table><tr>
+		<td><b>Dirección:</b>
+        <td>X: <input type="text" id="direccionLuzX" value="-1.0" />
+        <td>Y: <input type="text" id="direccionLuzY" value="-1.0" />
+        <td>Z: <input type="text" id="direccionLuzZ" value="-1.0" />
+        </tr>
+        <tr><td><b>Color:</b>
+		<td>R: <input type="text" id="direccionR" value="0.8" />
+		<td>G: <input type="text" id="direccionG" value="0.8" />
+		<td>B: <input type="text" id="direccionB" value="0.8" />
+		</tr>
+    </table>
+    <b>Iluminación de ambiente:</b>
+    <table>
+        <tr><td><b>Color:</b>
+		<td>R: <input type="text" id="ambienteR" value="0.2" />
+        <td>G: <input type="text" id="ambienteG" value="0.2" />
+        <td>B: <input type="text" id="ambienteB" value="0.2" />
+        </tr>
+    </table>
+</body></html>

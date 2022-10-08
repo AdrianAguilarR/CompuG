@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <title>Ejercicio 04</title>
+        <script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
+        <script id="shader-fs" type="x-shader/x-fragment">
+            #ifdef GL_ES
+            precision highp float;
+            #endif
+            void main(void) {
+                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+        </script>
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec3 aPosVertice;
+            uniform mat4 umvMatriz;
+            uniform mat4 uPMatriz;
+            void main(void) {
+                gl_Position = uPMatriz * umvMatriz * vec4(aPosVertice, 1.0);
+            }
+        </script>
+        <script type="text/javascript" src="js/webgl4.js"></script>
+    </head>
+    <body onload="webGLEjecutar();">
+        <canvas id="leccion01-canvas" style="border: none;" width="600" height="600"></canvas>
+    </body>
+</html>

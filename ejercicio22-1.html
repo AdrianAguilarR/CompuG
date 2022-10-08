@@ -1,0 +1,113 @@
+<html>
+<head>
+<title>Ejercicio 22</title>
+<script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="js/webgl-utils.js"></script>
+<script id="shader-fs" type="x-shader/x-fragment">
+	/* Unos cambios triviales en el código que carga la textura, como fue eliminar los dos tipos de
+	filtro de texturas para quedarme sólo con el mipmap. También hay un pequeño código nuevo en iniciarShaders
+	para definir el atributo verticeNormalAtributo en el programa shader para que dibujarScene pueda
+	enviar los vectores normales al shader, y exactamente lo mismo con cada una de las nuevas variables
+	uniformes que hemos necesitado. */
+	#ifdef GL_ES
+	precision highp float;
+	#endif
+	varying vec2 vTexturaCoord;
+	varying vec3 vLuzAncho; //... nuevo
+	uniform sampler2D uMuestra;
+	void main(void) {
+		vec4 texturaColor = texture2D(uMuestra, vec2(vTexturaCoord.s, vTexturaCoord.t));
+		gl_FragColor = vec4(texturaColor.rgb * vLuzAncho, texturaColor.a);
+		//gl_FragColor = texture2D(uMuestra, vec2(vTexturaCoord.s, vTexturaCoord.t));
+	}
+	/* Estamos extrayendo el color de la textura justo como en el tutorial anterior, pero en vez de
+	devolverlo directamente, estamos ajustando sus componentes R,G y B mediante una variables varying
+	llamada vLuzAncho. Esta variable es un vector de 3 elementos y (como deberías haber supuesto)
+	contiene los factores de rojo, verde y azul de la iluminación calculados por el vertex shader. */
+</script>
+<script id="shader-vs" type="x-shader/x-vertex">
+	attribute vec3 aPosVertice;
+	attribute vec3 aVerticeNormal; //... nuevo
+	attribute vec2 aTexturaCoord;
+	uniform mat4 umvMatriz;
+	uniform mat4 uPMatriz;
+	uniform mat3 uNMatriz; //... nuevo
+	varying vec2 vTexturaCoord;
+	//... nuevo
+	uniform vec3 uAmbienteColor;
+	uniform vec3 uLuzDireccion;
+	uniform vec3 uDireccionColor;
+	//... nuevo
+	uniform bool uUsoLuz;
+	varying vec3 vLuzAncho;
+	void main(void) {
+		gl_Position = uPMatriz * umvMatriz * vec4(aPosVertice, 1.0);
+		vTexturaCoord = aTexturaCoord;
+		//... nuevo
+		if (!uUsoLuz) {
+			vLuzAncho = vec3(1.0, 1.0, 1.0);
+		} else {
+			vec3 transformacionNormal = uNMatriz * aVerticeNormal;
+			float direccionLuzAncho = max(dot(transformacionNormal, uLuzDireccion), 0.0);
+			vLuzAncho = uAmbienteColor + uDireccionColor * direccionLuzAncho;
+		}
+	}
+	/* El nuevo atributo, aVerticeNormal, por supuesto contiene los vértices normalizados que especificamos
+	en iniciarBuffers y que le pasamos a este shader en dibujarScene. uNMatriz es nuestra matriz normalizada,
+	uUsoLuz es la variable uniforme donde especificamos si la iluminación está activa o no, y uAmbienteColor
+	uDireccionColor y uLuzDireccion son las variables para el color de la luz de ambiente, el color de la luz
+	direccional simple, y la dirección de la luz direccional simple. Todas ellas son los valores que se
+	especifican en los campos de texto del formulario de la página web.
+	La principal salida del shader es la variable varying uLuzAncho, que se utiliza para ajustar el color de la
+	imagen en el fragmento shader.
+	Si la iluminación está apagada, devolvemos el vector (1,1,1). Cualquier cosa multiplicada por este vector, no
+	cambiará, es decir, el fragment shader utilizará los colores originales de la textura porque estará
+	multiplicando por uno.
+	Si la iluminación está encendida, calculamos el vector normalizado que representa la dirección de ese vértice
+	que vamos a pintar a partir de la matriz normalizada, luego hacemos el producto escalar de esa orientación por
+	la dirección de la luz direccional (con un resultado mínimo de 0.0, como dijimos anteriormente) para obtener
+	el peso con el que la luz incide en ese punto.
+	A continuación calculamos el peso de la luz final para el fragment shader sumándole a la luz de ambiente, el
+	resultado de multiplicar el color de la luz direccional por el peso que tiene la luz para ese vértice.
+	El resultado de ésto es justo lo que necesita el fragment shader. Y por fín, hemos iluminado la escena.
+	Las nociones básicas de cómo funciona la iluminación en los sistemas gráficos 3D como webGL, como son la
+	iluminación de ambiente y la luz direccional simple. No es fácil de comprender, sobre todo si no se tienen
+	conocimientos matemáticos de los métodos algebraicos con el uso de matrices para hacer transformaciones, pero
+	viendo el código, y sobre todo, experimentando con él, al final, al menos se consigue poder utilizarlo sin
+	necesidad de entender profundamente todos los detalles.
+	Es posible que te hayas dado cuenta de un terrible defecto que tiene la iluminación direccional que hemos visto.
+	Se trata de que nuetra luz es capaz de "atravesar" los objetos de la escena, es decir, la luz incide por igual en
+	todos los vértices de todos los objetos de la escena, sin importarle si hay algún objeto que nos bloquee la luz
+	total o parcialmente. Ésto se debe, como ya comenté al principio, a que no estamos dibujando las sombras que
+	generan los objetos, que son en realidad quienes oscurecen los objetos que están detrás. */
+</script>
+<script type="text/javascript" src="js/webgl-22-1.js"></script>
+</head>
+<body onload="iniciarWebGL();">
+	<canvas id="leccion05-luz" style="border: none;" width="500" height="500"></canvas>
+	<br>Usa los <code>Cursores</code> para girar el cubo en X/Y y <code>AvPag</code>/<code>RePag</code> para girar en Z
+	<br><br/>
+	<table style="border: 0; padding: 5px;">
+	<tr><td colspan="3"><b>Iluminaci&oacute;n de ambiente</b></td>
+	<td colspan="4"><input type="checkbox" id="iluminacion" checked>Aplicar iluminaci&oacute;n</input></td></tr>
+	<tr><td><u>Color:</u></td>
+	<td>R:</td><td><input type="text" id="ambientR" value="0.2"/></td>
+	<td>G:</td><td><input type="text" id="ambientG" value="0.2"/></td>
+	<td>B:</td><td><input type="text" id="ambientB" value="0.2"/></td>
+	</tr>
+	</table>
+	<table style="border: 0; padding: 5px;">
+	<tr><td colspan="7"><b>Iluminaci&oacute;n direccional</b></td></tr>
+	<tr><td><u>Direcci&oacute;n</u></td>
+	<td>X:</td><td><input type="text" id="luzDireccionX" value="-0.25"/></td>
+    <td>Y:</td><td><input type="text" id="luzDireccionY" value="-0.25"/></td>
+    <td>Z:</td><td><input type="text" id="luzDireccionZ" value="-1.0"/></td>
+	</tr>
+	<tr><td><u>Color:</u></td>
+    <td>R:</td><td><input type="text" id="direccionR" value="0.8"/></td>
+    <td>G:</td><td><input type="text" id="direccionG" value="0.8"/></td>
+    <td>B:</td><td><input type="text" id="direccionB" value="0.8"/></td>
+	</tr>
+	</table>
+	
+</body></html>

@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <title>Ejercicio 03</title>
+        <!-- /* Hay que destacar es que NO están escritos en lenguaje javascript,
+             * en realidad, están escritos en un lenguaje llamado GLSL (inspirado
+             * en C).
+             * El primero corresponde al  fragment shader, comunica a la tarjeta
+             * gráfica de que use el tipo float como grado de precisión para todas
+             * las operaciones, e indica que todo los píxeles que se dibujen, lo
+             * hagan en color blanco.*/ -->
+        <!-- /* El segundo shader trata de un vertex shader (se ejecuta en la
+             * tarjeta gráfica y puede hacer cualquier cosa con los vértices).
+             * Asociados a ella, tiene dos variables uniformes, umvMatriz y uPMatriz.
+             * Las variables uniformes son útiles porque se pueden acceder a ellas
+             * desde fuera del shader, y como quizás hayas recordado, se extrajo
+             * su ubicación al final de iniciarShaders, y será con ellas la forma
+             * de pasarle a webGL los valores de nuestras matrices de modelo-vista
+             * y proyección que calculamos en javascript.
+             * El vertex shader es llamado una vez por cada vértice, y el vértice
+             * se pasa al código del shader a través de aPosVertice, gracias al
+             * uso del atribPosVertice en el dibujarEscena. ¿Comienzas a ver la 
+             * relación? Los shaders deben tener una rutina principal llamada main,
+             * y ésta en concreto sólo multiplica la posición del vértice por la
+             * matriz de modelo-vista y por la de proyección devolviéndolos la
+             * posición final del vértice en la escena.
+             * Por lo tanto, webGLEjecutar llama a iniciarShaders, que usará
+             * getShader para cargar los shaders de fragment y vertex contenidos
+             * en dos <script> (con ID propio) de la página web, de modo que puedan
+             * ser compilados por la tarjeta gráfica y utilizados más adelante
+             * cuando se renderice la escena 3D */ -->
+        <script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
+        <script id="shader-fs" type="x-shader/x-fragment">
+            #ifdef GL_ES
+            precision highp float;
+            #endif
+            void main(void) {
+                gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            }
+        </script>
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec3 aPosVertice;
+            uniform mat4 umvMatriz;
+            uniform mat4 uPMatriz;
+            void main(void) {
+                gl_Position = uPMatriz * umvMatriz * vec4(aPosVertice, 1.0);
+            }
+        </script>
+        <script type="text/javascript" src="js/webgl.js"></script>
+    </head>
+    <body onload="webGLEjecutar();">
+        <canvas id="leccion01-canvas" style="border: none;" width="300" height="300"></canvas>
+    </body>
+</html>

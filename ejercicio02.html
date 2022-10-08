@@ -1,0 +1,58 @@
+<html>
+    <head>
+        <title>Ejercicio 02</title>
+        <!-- iniciarGL. usa constántemente un objeto llamado gl.
+            (el nombre “experimental-webgl” cambiará a “webgl” cuando se cierren 
+            los estándares de html5 y javascript). Una vez obtenido el contexto,
+            usamos algunos métodos de javascript para obtener el ancho y el alto del lienzo,
+            creamos dos nuevos atributos a gl para guardar esa información. Luego la usaremos
+            para definir el tamaño de la zona donde pintar en el canvas, en viewport
+            al comienzo de la función drawScene. Con ésto, ya tenemos configurado nuestro contexto webGL. -->
+        <!-- webGLEjecutar, llama a otra función para inicializar webGL y a continuación,
+            hacemos una configuración básica de webGL, diciendo que cuando ordenemos
+            limpiar el canvas, lo haga de negro (R,G,B,Alpha), este paso se implementan
+            haciendo llamadas a los métodos de un objeto gl (el cual veremos cono
+            inicializar después). Finalmente, se llama a la función drawScene. -->
+        <!-- drawScene. su primer paso es decirle a webGL en qué parte del CANVAS
+        puede pintar, para utilizar todo su tamaño, indicamos con la función
+        viewport (vista), que puede utilizar la zona que va desde la coordenada
+        (0,0), que corresponde a la esquina superior izquierda, tantos píxeles
+        de anchura y altura como tenga el canvas. Con esta función podemos hacer
+        que webGL sólo dibuje en la zona exacta del canvas que queramos.
+        A continuación, limpiamos el trozo de canvas que acabamos de definir, y
+        lo preparamos para dibujar en él: -->
+        <!-- CANVAS. Éste elemento, que en castellano significa lienzo, es una de
+    las novedades de HTML5 y será la zona de la página web donde se pinten los
+    gráficos a través de los nuevos métodos de javascript para el dibujo gráfico
+    en 2D y (a través de webGL) 3D. No especificamos nada más que los atributos
+    básicos para el CANVAS, un ancho y un alto, y sin borde; y dejamos que todo
+    el código de configuración del webGL se cargue en la función webGLEjecutar,
+    que automáticamente se llamará cuando cargue la página.-->
+        <script type="text/javascript">
+            var gl;
+            function iniciarGL(canvas) {
+                try {
+                    gl = canvas.getContext("webgl");
+                    gl.puertoVistaAncho = canvas.width;
+                    gl.puertoVistaAlto = canvas.height;
+                } catch (e) { }
+                if (!gl) {
+                    alert("No puede iniciarse webGL en este navegador");
+                }
+            }
+            function dibujarEscena() {
+                gl.viewport(0, 0, gl.puertoVistaAncho, gl.puertoVistaAlto);
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            }
+            function webGLEjecutar() {
+                var canvas = document.getElementById("leccion01-canvas");
+                iniciarGL(canvas);
+                gl.clearColor(0.0, 0.0, 0.0, 1.0);
+                dibujarEscena();
+            }
+        </script>
+    </head>
+    <body onload="webGLEjecutar();">
+        <canvas id="leccion01-canvas" style="border: none;" width="300" height="300"></canvas>
+    </body>
+</html>

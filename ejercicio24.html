@@ -1,0 +1,77 @@
+<html>
+<head>
+<title>Ejercicio 24</title>
+<script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="js/webgl-utils.js"></script>
+<script id="shader-fs" type="x-shader/x-fragment">
+	#ifdef GL_ES
+	precision highp float;
+	#endif
+	varying vec2 vTexturaCoord;
+	varying vec3 vLuzAncho;
+	uniform float uAlpha; //... nuevo
+	uniform sampler2D uMuestra;
+	void main(void) {
+		vec4 texturaColor = texture2D(uMuestra, vec2(vTexturaCoord.s, vTexturaCoord.t));
+		gl_FragColor = vec4(texturaColor.rgb * vLuzAncho, texturaColor.a * uAlpha);
+	}
+</script>
+<script id="shader-vs" type="x-shader/x-vertex">
+	attribute vec3 aPosVertice;
+	attribute vec3 aVerticeNormal;
+	attribute vec2 aTexturaCoord;
+	uniform mat4 umvMatriz;
+	uniform mat4 uPMatriz;
+	uniform mat3 uNMatriz;
+	varying vec2 vTexturaCoord;
+	uniform vec3 uAmbienteColor;
+	uniform vec3 uLuzDireccion;
+	uniform vec3 uDireccionColor;
+	uniform bool uUsoLuz;
+	varying vec3 vLuzAncho;
+	void main(void) {
+		gl_Position = uPMatriz * umvMatriz * vec4(aPosVertice, 1.0);
+		vTexturaCoord = aTexturaCoord;
+		//... nuevo
+		if (!uUsoLuz) {
+			vLuzAncho = vec3(1.0, 1.0, 1.0);
+		} else {
+			vec3 transformacionNormal = uNMatriz * aVerticeNormal;
+			float direccionLuzAncho = max(dot(transformacionNormal, uLuzDireccion), 0.0);
+			vLuzAncho = uAmbienteColor + uDireccionColor * direccionLuzAncho;
+		}
+	}
+</script>
+<script type="text/javascript" src="js/webgl-25.js"></script>
+</head>
+<body onload="iniciarWebGL();">
+	<canvas id="leccion05-luz" style="border: none;" width="500" height="500"></canvas>
+	<br>Usa los <code>Cursores</code> para girar el cubo en X/Y y <code>AvPag</code>/<code>RePag</code> para girar en Z
+	<br><br/>
+	Nivel Alfa <input type="text" id="alpha" value="0.5" />
+	<input type="checkbox" id="transparencia" checked>Usar transparencia</input>
+ 
+	<table style="border: 0; padding: 5px;">
+	<tr><td colspan="3"><b>Iluminaci&oacute;n de ambiente</b></td>
+	<td colspan="4"><input type="checkbox" id="iluminacion" checked>Aplicar iluminaci&oacute;n</input></td></tr>
+	<tr><td><u>Color:</u></td>
+	<td>R:</td><td><input type="text" id="ambientR" value="0.2"/></td>
+	<td>G:</td><td><input type="text" id="ambientG" value="0.2"/></td>
+	<td>B:</td><td><input type="text" id="ambientB" value="0.2"/></td>
+	</tr>
+	</table>
+	<table style="border: 0; padding: 5px;">
+	<tr><td colspan="7"><b>Iluminaci&oacute;n direccional</b></td></tr>
+	<tr><td><u>Direcci&oacute;n</u></td>
+	<td>X:</td><td><input type="text" id="luzDireccionX" value="0.0"/></td>
+    <td>Y:</td><td><input type="text" id="luzDireccionY" value="0.0"/></td>
+    <td>Z:</td><td><input type="text" id="luzDireccionZ" value="-1.0"/></td>
+	</tr>
+	<tr><td><u>Color:</u></td>
+    <td>R:</td><td><input type="text" id="direccionR" value="0.8"/></td>
+    <td>G:</td><td><input type="text" id="direccionG" value="0.8"/></td>
+    <td>B:</td><td><input type="text" id="direccionB" value="0.8"/></td>
+	</tr>
+	</table>
+	
+</body></html>

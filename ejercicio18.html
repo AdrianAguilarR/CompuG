@@ -1,0 +1,45 @@
+<html>
+    <head>
+        <title>Ejercicio 18</title>
+        <script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
+        <!-- Nuevo -->
+        <script type="text/javascript" src="js/webgl-utils.js"></script>
+        <!-- Fin Nuevo -->
+        <script id="shader-fs" type="x-shader/x-fragment">
+            #ifdef GL_ES
+            precision highp float;
+            #endif
+            //... generando color como variable
+            varying vec4 vColor;
+            void main(void) {
+                //... El color actuara como una variable
+                gl_FragColor = vColor;
+            }
+        </script>
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec3 aPosVertice;
+            //... Definimos colores
+            attribute vec4 aVerticeColor;
+            //... Construimos matrices
+            uniform mat4 umvMatriz;
+            uniform mat4 uPMatriz;
+            //... generando color como variable
+            varying vec4 vColor;
+            void main(void) {
+                gl_Position = uPMatriz * umvMatriz * vec4(aPosVertice, 1.0);
+                //.... Definiendo color
+                vColor = aVerticeColor;
+            }
+        </script>
+        <script type="text/javascript" src="js/webgl-18.js"></script>
+    </head>
+    <body onload="webGLEjecutar();">
+        <canvas id="leccion03-control" style="border: none;" width="300" height="300"></canvas>
+        <h2>Controles:</h2>
+        <ul>
+            <li><code>AvPag</code>/<code>RePag</code>: Hacer zoom acercar(+)/alejar(-).
+            <li><code>Cursores (flecha arriba/abajo/izquierda/derecha)</code>: Hacen rotar al cubo (cuanto más tiempo las pulses, más rápido girará).
+            <li><code>F</code>: Para cambiar entre los diferentes tipos de filtrado de texturas (no habilitado).
+        </ul>
+    </body>
+</html>
